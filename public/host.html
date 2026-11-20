@@ -210,7 +210,7 @@ function renderVote(){
     view = "vote"; lastCur = null; lastList = ""; lastFeat = ""; anim = null;
     main.innerHTML = `<div class="vote"><div class="stage">
       <div class="feat" id="feat"></div>
-      <div class="bars">${["need","hand","wait"].map(c => `<button class="col ${c}" data-c="${c}" title="Lås som ${LABEL[c]}"><div class="head"><span class="num" id="n-${c}">0</span><span class="pct" id="p-${c}"></span></div><div class="track"><div class="fill" id="f-${c}"></div></div><div class="lbl">${LABEL[c]}<kbd>${c==="need"?1:c==="hand"?2:3}</kbd></div></button>`).join("")}</div>
+      <div class="bars">${["need","hand","wait"].map(c => `<button class="col ${c}" data-c="${c}" title="Lås som ${LABEL[c]}"><div class="head"><span class="num" id="n-${c}">0</span><span class="pct" id="p-${c}"></span></div><div class="track"><div class="fill" id="f-${c}"></div></div><div class="lbl">${SHORT[c]}<kbd>${c==="need"?1:c==="hand"?2:3}</kbd></div></button>`).join("")}</div>
       <div class="foot"><div class="prog"><div class="t" id="pt"></div><div class="bar"><i id="pb"></i></div></div>
         <button class="btn" id="prev">Forrige</button>
         <button class="btn" id="more" title="Ti sekunder til">+10 s<kbd>T</kbd></button>
@@ -253,7 +253,7 @@ function renderVote(){
   // Stempelet bygges bare når låsen endres, så animasjonen spilles én gang
   const sb = document.getElementById("feat").querySelector(".stampbox") || document.getElementById("feat").appendChild(Object.assign(document.createElement("div"), { className: "stampbox" }));
   const want = lock ? lock.c : "";
-  if (sb.dataset.c !== want) { sb.dataset.c = want; sb.innerHTML = lock ? `<span class="stamp ${lock.c}">${LABEL[lock.c]}</span>` : ""; }
+  if (sb.dataset.c !== want) { sb.dataset.c = want; sb.innerHTML = lock ? `<span class="stamp ${lock.c}">${SHORT[lock.c]}</span>` : ""; }
   if (!counting) {
     const denom = Math.max(st.voters, a.total, 1);
     for (const c of ["need","hand","wait"]) {
@@ -275,13 +275,13 @@ function renderVote(){
   const lb = document.getElementById("lock");
   lb.hidden = (!shown || counting) && !lock;
   lb.disabled = !lock && !a.top;
-  lb.innerHTML = lock ? "Lås opp" : a.top ? `Lås: ${LABEL[a.top]}<kbd>L</kbd>` : (a.total ? "Uavgjort, klikk en kolonne" : "Ingen stemmer");
+  lb.innerHTML = lock ? "Lås opp" : a.top ? `Lås: ${SHORT[a.top]}<kbd>L</kbd>` : (a.total ? "Uavgjort, klikk en kolonne" : "Ingen stemmer");
   const listKey = fid + JSON.stringify(st.locked);
   if (listKey === lastList) return;
   lastList = listKey;
   document.getElementById("list").innerHTML = FEATURES.map(x => {
     const l = st.locked[x.id];
-    return `<li class="${x.id === fid ? "cur" : ""}"><button data-f="${x.id}">${esc(x.name)}${l ? `<span class="chipc ${l.c}">${LABEL[l.c]}</span>` : ""}</button></li>`;
+    return `<li class="${x.id === fid ? "cur" : ""}"><button data-f="${x.id}">${esc(x.name)}${l ? `<span class="chipc ${l.c}">${SHORT[l.c]}</span>` : ""}</button></li>`;
   }).join("");
   document.querySelectorAll("#list button").forEach(b => b.onclick = () => live.send({ t: "show", f: b.dataset.f }));
 }
@@ -389,12 +389,12 @@ function renderSummary(){
   const li = (arr, sub) => arr.length ? arr.map((f, i) => `<li style="animation-delay:${i * 70}ms">${esc(f.name)}${sub ? `<small>${esc(f.hand)}</small>` : ""}</li>`).join("") : '<li class="tag">Ingen</li>';
   const w = by("wait").length, h = by("hand").length, n = by("need").length;
   main.innerHTML = `<div class="sum">
-    <h1><em>${w} av ${FEATURES.length}</em> kan vente. ${h} gjøres for hånd. ${n} trengs fra dag én.</h1>
+    <h1><em>${w} av ${FEATURES.length}</em> trenger ingenting nå. ${h} får en manuell løsning. ${n} må gjøres før vi lanserer.</h1>
     ${splits.length ? `<p class="splits">Rommet var uenig om ${splits.map(f => esc(f.name).toLowerCase()).join(", ")}.</p>` : ""}
     ${open.length ? `<p class="tag">${open.length} funksjoner er ikke avgjort.</p>` : ""}
-    <div class="cols3"><div><h2 style="color:var(--need)">Trengs</h2><ul>${li(by("need"))}</ul></div>
-      <div><h2 style="color:var(--hand)">For hånd i starten</h2><ul>${li(by("hand"), true)}</ul></div>
-      <div class="wait"><h2 style="color:var(--wait)">Kan vente</h2><ul>${li(by("wait"))}</ul></div></div>
+    <div class="cols3"><div><h2 style="color:var(--need)">${LABEL.need}</h2><ul>${li(by("need"))}</ul></div>
+      <div><h2 style="color:var(--hand)">${LABEL.hand}</h2><ul>${li(by("hand"), true)}</ul></div>
+      <div class="wait"><h2 style="color:var(--wait)">${LABEL.wait}</h2><ul>${li(by("wait"))}</ul></div></div>
     <div class="foot"><button class="btn" id="back">Tilbake til stemmingen</button><span style="flex:1"></span><button class="btn" id="reset">Nullstill møtet</button></div></div>`;
   document.getElementById("back").onclick = () => live.send({ t: "phase", p: "vote" });
   const r = document.getElementById("reset");

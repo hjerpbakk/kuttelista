@@ -21,4 +21,5 @@ window.FEATURES = [
  {id:"feedback",grp:"Pynt og komfort",name:"Knapp for tilbakemelding",desc:"Brukerne sier fra rett i løsningen.",hand:"En e-postadresse på forsiden."},
  {id:"info",grp:"Pynt og komfort",name:"Infosider om datasett og eksport",desc:"Forklaring av datafelter og filformater.",hand:"Teamet svarer på spørsmål når de kommer."}
 ];
-window.LABEL = {need:"Trengs",hand:"For hånd",wait:"Kan vente"};
+window.LABEL = {need:"Må gjøres før vi lanserer",hand:"Manuell løsning for en stund",wait:"Ingenting nå"};
+window.SHORT = {need:"Må gjøres",hand:"Manuell løsning",wait:"Ingenting nå"};
