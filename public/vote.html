@@ -80,7 +80,7 @@ function render() {
         <div class="card"><span class="tag">${esc(f.grp)}</span><h1>${esc(f.name)}</h1><p>${esc(f.desc)}</p></div>
         ${st.locked ? `<div class="locked ${st.locked.c}">Rommet landet på: ${LABEL[st.locked.c]}<small>${st.mine === st.locked.c ? "Du var enig med rommet." : st.mine ? "Du stemte annerledes enn rommet." : "Du stemte ikke på denne."}</small></div>` : ""}
         <div class="choices">
-          ${["need","hand","wait"].map(c => `<button type="button" class="choice ${c}" data-c="${c}" ${st.locked ? "disabled" : ""}><span class="mark"></span><span>${LABEL[c]}<small>${c==="need"?"Uten denne vet vi ikke om det virker":c==="hand"?esc(f.hand || "Vi klarer oss manuelt i starten"):"Dette tar vi eventuelt senere"}</small></span></button>`).join("")}
+          ${["need","hand","wait"].map(c => `<button type="button" class="choice ${c}" data-c="${c}" ${st.locked ? "disabled" : ""}><span class="mark"></span><span>${LABEL[c]}<small>${c==="need"?"Uten denne kan vi ikke publisere første versjon":c==="hand"?esc(f.hand || "Vi klarer oss manuelt i starten"):"Dette tar vi eventuelt senere"}</small></span></button>`).join("")}
         </div>
         <p class="hint" id="hint"></p>`;
       main.querySelectorAll(".choice").forEach(b => b.addEventListener("click", e => vote(b, e)));
