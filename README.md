@@ -1,6 +1,6 @@
 # Kuttelista
 
-Avstemning fra mobilen for Produktforum hos NGU. Deltakerne scanner en QR-kode og tar stilling til én funksjon om gangen: trengs, for hånd eller kan vente. Storskjermen holder stemmene skjult til alle har stemt eller tiden er ute, og teller dem så opp.
+Avstemning fra mobilen for Produktforum hos NGU. Deltakerne scanner en QR-kode og tar stilling til én funksjon om gangen: må gjøres før vi lanserer, manuell løsning for en stund eller ingenting nå. Storskjermen holder stemmene skjult til alle har stemt eller tiden er ute, og teller dem så opp.
 
 Caset er en tenkt førsteversjon av Prøvedatabase. Funksjonslista ligger i `public/features.js`.
 
@@ -16,7 +16,7 @@ Tastene på storskjermen:
 
 - Høyre og venstre piltast går til neste og forrige funksjon.
 - T gir ti sekunder ekstra, og V viser stemmene med en gang.
-- L låser det flest stemte på. 1, 2 og 3 låser trengs, for hånd og kan vente.
+- L låser det flest stemte på. 1, 2 og 3 låser må gjøres, manuell løsning og ingenting nå.
 - S viser oppsummeringen.
 
 ## Utvikling
