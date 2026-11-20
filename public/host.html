@@ -389,7 +389,7 @@ function renderSummary(){
   const li = (arr, sub) => arr.length ? arr.map((f, i) => `<li style="animation-delay:${i * 70}ms">${esc(f.name)}${sub ? `<small>${esc(f.hand)}</small>` : ""}</li>`).join("") : '<li class="tag">Ingen</li>';
   const w = by("wait").length, h = by("hand").length, n = by("need").length;
   main.innerHTML = `<div class="sum">
-    <h1><em>${w} av ${FEATURES.length}</em> trenger ingenting nå. ${h} får en manuell løsning. ${n} må gjøres før vi lanserer.</h1>
+    <h1><em>${w} av ${FEATURES.length}</em> gjør vi ingenting med nå. ${h} får en manuell løsning. ${n} må gjøres før vi lanserer.</h1>
     ${splits.length ? `<p class="splits">Rommet var uenig om ${splits.map(f => esc(f.name).toLowerCase()).join(", ")}.</p>` : ""}
     ${open.length ? `<p class="tag">${open.length} funksjoner er ikke avgjort.</p>` : ""}
     <div class="cols3"><div><h2 style="color:var(--need)">${LABEL.need}</h2><ul>${li(by("need"))}</ul></div>
