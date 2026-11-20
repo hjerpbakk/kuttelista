@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#2e6e55">
+<title>Kuttelista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="/app.css">
+<style>
+body{min-height:100dvh;display:flex;flex-direction:column;font-size:17px}
+main{flex:1;display:flex;flex-direction:column;gap:16px;padding:18px max(16px,env(safe-area-inset-right)) calc(18px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));max-width:520px;width:100%;margin:0 auto}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px}
+.card h1{margin:6px 0 6px;font-size:24px;line-height:1.2;text-wrap:balance}
+.card p{margin:0;color:var(--muted)}
+.wait{flex:1;display:grid;place-items:center;text-align:center;gap:10px}
+.wait h1{font-size:26px;margin:0}
+.wait p{color:var(--muted);margin:0;max-width:28ch}
+.pulse{width:64px;height:64px;border-radius:50%;background:var(--accent-soft);display:grid;place-items:center;margin:0 auto 8px;animation:breathe 2.4s ease-in-out infinite}
+.pulse span{width:22px;height:22px;border-radius:50%;background:var(--accent)}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+.choices{display:grid;gap:12px}
+.choice{position:relative;overflow:hidden;border:2px solid var(--line);background:var(--surface);border-radius:16px;padding:18px 18px;text-align:left;display:flex;align-items:center;gap:14px;font-size:20px;font-weight:600;transition:transform .12s ease,border-color .2s,background .2s;-webkit-tap-highlight-color:transparent}
+.choice small{display:block;font-size:14px;font-weight:400;color:var(--muted)}
+.choice:active{transform:scale(.97)}
+.choice .mark{width:28px;height:28px;border-radius:50%;border:2px solid var(--line);flex:none;display:grid;place-items:center;transition:all .2s}
+.choice.need.sel{border-color:var(--need);background:var(--need-bg)} .choice.need.sel .mark{background:var(--need);border-color:var(--need)}
+.choice.hand.sel{border-color:var(--hand);background:var(--hand-bg)} .choice.hand.sel .mark{background:var(--hand);border-color:var(--hand)}
+.choice.wait.sel{border-color:var(--wait);background:var(--wait-bg)} .choice.wait.sel .mark{background:var(--wait);border-color:var(--wait)}
+.choice.sel .mark::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--surface)}
+.choice.pop{animation:pop .35s cubic-bezier(.3,1.6,.5,1)}
+@keyframes pop{0%{transform:scale(.95)}60%{transform:scale(1.03)}100%{transform:scale(1)}}
+.ripple{position:absolute;border-radius:50%;pointer-events:none;transform:scale(0);opacity:.35;animation:ripple .6s ease-out forwards}
+@keyframes ripple{to{transform:scale(4);opacity:0}}
+.hint{font-size:14px;color:var(--muted);text-align:center;margin:0}
+.locked{border-radius:16px;padding:16px;text-align:center;font-weight:600;animation:pop .4s cubic-bezier(.3,1.6,.5,1)}
+.locked small{display:block;font-weight:400;font-size:14px;margin-top:4px;opacity:.85}
+.locked.need{background:var(--need-bg);color:var(--need)} .locked.hand{background:var(--hand-bg);color:var(--hand)} .locked.wait{background:var(--wait-bg);color:var(--wait)}
+.err{color:var(--warn)}
+</style>
+</head>
+<body>
+<header class="appbar">
+  <div class="brand"><span class="logo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="var(--surface)" stroke-width="2.2" stroke-linecap="round"><path d="M5 19 15 9"/><path d="M13 5l6 6"/><path d="M5 5l4 4"/><path d="M15 15l4 4"/></svg></span>Kuttelista</div>
+  <span class="status"><span class="dot" id="dot"></span><span id="code"></span></span>
+</header>
+<main id="main"><div class="wait"><div><div class="pulse"><span></span></div><h1>Kobler til</h1></div></div></main>
+<script src="/features.js"></script>
+<script src="/live.js"></script>
+<script>
+const code = location.pathname.split("/")[2].toUpperCase();
+document.getElementById("code").textContent = code;
+let vid;
+try { vid = localStorage.getItem("kl-vid"); } catch {}
+if (!vid) { vid = crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now(); try { localStorage.setItem("kl-vid", vid); } catch {} }
+
+const F = Object.fromEntries(FEATURES.map(f => [f.id, f]));
+const main = document.getElementById("main");
+let st = null, lastKey = "";
+
+const live = connectLive("/ws/" + code + "?role=voter&vid=" + encodeURIComponent(vid), s => { s.offset = (s.now || Date.now()) - Date.now(); st = s; render(); }, s => {
+  document.getElementById("dot").className = "dot " + (s === "on" ? "on" : "off");
+  if (s === "gone") main.innerHTML = '<div class="wait"><div><h1>Møtet er avsluttet</h1><p>Takk for at du var med.</p></div></div>';
+});
+
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+
+function render() {
+  if (!st) return;
+  const key = st.phase + "|" + st.cur + "|" + (st.locked ? st.locked.c : "");
+  if (st.phase === "lobby" || !st.cur) {
+    if (key !== lastKey) main.innerHTML = '<div class="wait"><div><div class="pulse"><span></span></div><h1>Du er med</h1><p>Hold telefonen klar. Første funksjon kommer straks.</p></div></div>';
+  } else if (st.phase === "summary") {
+    if (key !== lastKey) main.innerHTML = '<div class="wait"><div><h1>Ferdig</h1><p>Se på skjermen for resultatet.</p></div></div>';
+  } else {
+    const f = F[st.cur] || { name: st.cur, desc: "", grp: "" };
+    if (key !== lastKey) {
+      main.innerHTML = `
+        <div class="card"><span class="tag">${esc(f.grp)}</span><h1>${esc(f.name)}</h1><p>${esc(f.desc)}</p></div>
+        ${st.locked ? `<div class="locked ${st.locked.c}">Rommet landet på: ${LABEL[st.locked.c]}<small>${st.mine === st.locked.c ? "Du var enig med rommet." : st.mine ? "Du stemte annerledes enn rommet." : "Du stemte ikke på denne."}</small></div>` : ""}
+        <div class="choices">
+          ${["need","hand","wait"].map(c => `<button type="button" class="choice ${c}" data-c="${c}" ${st.locked ? "disabled" : ""}><span class="mark"></span><span>${LABEL[c]}<small>${c==="need"?"Uten denne vet vi ikke om det virker":c==="hand"?"Vi klarer oss manuelt i starten":"Den kan komme senere"}</small></span></button>`).join("")}
+        </div>
+        <p class="hint" id="hint"></p>`;
+      main.querySelectorAll(".choice").forEach(b => b.addEventListener("click", e => vote(b, e)));
+    }
+    main.querySelectorAll(".choice").forEach(b => b.classList.toggle("sel", b.dataset.c === st.mine));
+    hint();
+  }
+  if (st.locked && key !== lastKey && navigator.vibrate) navigator.vibrate(st.mine === st.locked.c ? [20, 60, 20] : 30);
+  lastKey = key;
+}
+
+function hint() {
+  const h = document.getElementById("hint"); if (!h || !st) return;
+  if (st.locked) { h.textContent = "Vent på neste funksjon."; return; }
+  const secs = st.deadline ? Math.max(0, Math.ceil((st.deadline - (Date.now() + (st.offset || 0))) / 1000)) : 0;
+  h.textContent = secs > 0 ? `${secs} sekunder igjen. Du kan bytte til den blir låst.` : "Resultatet vises på skjermen. Du kan fortsatt bytte.";
+}
+setInterval(hint, 500);
+
+function vote(b, e) {
+  if (!st || st.locked) return;
+  const c = st.mine === b.dataset.c ? null : b.dataset.c;
+  if (!live.send({ t: "vote", f: st.cur, c })) { document.getElementById("hint").innerHTML = '<span class="err">Mistet forbindelsen. Prøver igjen.</span>'; return; }
+  st.mine = c;
+  main.querySelectorAll(".choice").forEach(x => x.classList.toggle("sel", x.dataset.c === c));
+  if (c) {
+    b.classList.remove("pop"); void b.offsetWidth; b.classList.add("pop");
+    const r = document.createElement("span"), rect = b.getBoundingClientRect(), size = rect.width;
+    r.className = "ripple"; r.style.width = r.style.height = size + "px";
+    r.style.left = (e.clientX - rect.left - size / 2) + "px"; r.style.top = (e.clientY - rect.top - size / 2) + "px";
+    r.style.background = getComputedStyle(document.documentElement).getPropertyValue("--" + c);
+    b.appendChild(r); setTimeout(() => r.remove(), 650);
+    if (navigator.vibrate) navigator.vibrate(12);
+  }
+}
+</script>
+</body>
+</html>

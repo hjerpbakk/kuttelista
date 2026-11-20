@@ -1,0 +1,28 @@
+:root{
+  --bg:#f3f5f3; --surface:#ffffff; --panel:#e6ebe8; --fg:#1d2522; --muted:#5d6a65; --line:#d3dbd7;
+  --accent:#2e6e55; --accent-soft:#dcebe3;
+  --need:#2e6e55; --need-bg:#dcebe3; --hand:#a06d0e; --hand-bg:#f6ebcf; --wait:#5d6a65; --wait-bg:#e8ecea;
+  --chip:#e3efe6; --chip-fg:#26503c; --warn:#b4471f; --warn-bg:#fbe4d9;
+  --sans:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#121715; --surface:#1a211e; --panel:#222b27; --fg:#e7ece9; --muted:#9aa8a2; --line:#33403a;
+  --accent:#6cc39b; --accent-soft:#1f3a2e;
+  --need:#7fd0a6; --need-bg:#1f3a2e; --hand:#e2b453; --hand-bg:#3a3020; --wait:#a8b4ae; --wait-bg:#2a322e;
+  --chip:#20342a; --chip-fg:#a9dcbf; --warn:#f08d63; --warn-bg:#3d2419; color-scheme:dark}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);line-height:1.45;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.appbar{background:var(--surface);border-bottom:1px solid var(--line);padding:10px max(16px,env(safe-area-inset-right)) 10px max(16px,env(safe-area-inset-left));display:flex;align-items:center;gap:12px}
+.brand{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:500}
+.logo{width:32px;height:32px;border-radius:50%;background:var(--fg);display:grid;place-items:center;flex:none}
+.logo svg{width:18px;height:18px}
+.tag{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--muted);display:inline-block}
+.dot.on{background:var(--need)} .dot.off{background:var(--warn)}
+.status{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
