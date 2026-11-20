@@ -76,6 +76,8 @@ kbd{font-family:ui-monospace,Menlo,monospace;font-size:.75em;border:1px solid va
 .side ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
 .side li button{width:100%;text-align:left;background:none;border:0;border-radius:10px;padding:.35em .6em;display:flex;align-items:center;gap:.6em;font-size:.85em}
 .side li button:hover{background:var(--panel)}
+.side li.grp{font-size:.7em;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:.9em .85em .2em}
+.side li.grp:first-child{padding-top:.2em}
 .side li.cur button{background:var(--accent-soft);font-weight:600}
 .side .chipc{margin-left:auto;font-size:.8em;border-radius:6px;padding:.05em .5em;white-space:nowrap}
 .chipc.need{background:var(--need-bg);color:var(--need)} .chipc.hand{background:var(--hand-bg);color:var(--hand)} .chipc.wait{background:var(--wait-bg);color:var(--wait)}
@@ -279,9 +281,10 @@ function renderVote(){
   const listKey = fid + JSON.stringify(st.locked);
   if (listKey === lastList) return;
   lastList = listKey;
-  document.getElementById("list").innerHTML = FEATURES.map(x => {
+  document.getElementById("list").innerHTML = FEATURES.map((x, i) => {
     const l = st.locked[x.id];
-    return `<li class="${x.id === fid ? "cur" : ""}"><button data-f="${x.id}">${esc(x.name)}${l ? `<span class="chipc ${l.c}">${SHORT[l.c]}</span>` : ""}</button></li>`;
+    const head = i === 0 || FEATURES[i - 1].grp !== x.grp ? `<li class="grp">${esc(x.grp)}</li>` : "";
+    return `${head}<li class="${x.id === fid ? "cur" : ""}"><button data-f="${x.id}">${esc(x.name)}${l ? `<span class="chipc ${l.c}">${SHORT[l.c]}</span>` : ""}</button></li>`;
   }).join("");
   document.querySelectorAll("#list button").forEach(b => b.onclick = () => live.send({ t: "show", f: b.dataset.f }));
 }
